@@ -48,11 +48,13 @@
             pictureBox_before_grayscale = new PictureBox();
             label_error = new Label();
             openFileDialog1 = new OpenFileDialog();
+            pictureBox_after_grayscale = new PictureBox();
             ((System.ComponentModel.ISupportInitialize)numericUpDown_no_of_threads).BeginInit();
             ((System.ComponentModel.ISupportInitialize)numericUpDown_red).BeginInit();
             ((System.ComponentModel.ISupportInitialize)numericUpDown_green).BeginInit();
             ((System.ComponentModel.ISupportInitialize)numericUpDown_blue).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox_before_grayscale).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBox_after_grayscale).BeginInit();
             SuspendLayout();
             // 
             // label_grayscale
@@ -227,11 +229,21 @@
             // 
             openFileDialog1.FileName = "openFileDialog1";
             // 
+            // pictureBox_after_grayscale
+            // 
+            pictureBox_after_grayscale.Location = new Point(610, 32);
+            pictureBox_after_grayscale.Name = "pictureBox_after_grayscale";
+            pictureBox_after_grayscale.Size = new Size(125, 62);
+            pictureBox_after_grayscale.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBox_after_grayscale.TabIndex = 20;
+            pictureBox_after_grayscale.TabStop = false;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
+            Controls.Add(pictureBox_after_grayscale);
             Controls.Add(label_error);
             Controls.Add(pictureBox_before_grayscale);
             Controls.Add(label_pick_dll);
@@ -259,6 +271,7 @@
             ((System.ComponentModel.ISupportInitialize)numericUpDown_green).EndInit();
             ((System.ComponentModel.ISupportInitialize)numericUpDown_blue).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox_before_grayscale).EndInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBox_after_grayscale).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -285,5 +298,6 @@
         private PictureBox pictureBox_before_grayscale;
         private Label label_error;
         private OpenFileDialog openFileDialog1;
+        private PictureBox pictureBox_after_grayscale;
     }
 }

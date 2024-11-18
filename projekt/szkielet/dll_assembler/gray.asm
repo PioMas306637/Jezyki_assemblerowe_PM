@@ -1,9 +1,4 @@
 .code
-MyProc1 proc
-add RCX, RDX
-mov RAX, RCX
-ret
-MyProc1 endp
 
 
 
@@ -34,17 +29,14 @@ mov r12, 0
 mov rax, [rsi]
 mul rcx
 add r12, rax
-mov [rsi], rax
 ;green
 mov rax, [rsi+1]
 mul rdx
 add r12, rax
-mov [rsi+1], rax
 ;red
 mov rax, [rsi+2]
 mul r8
 add r12, rax
-mov [rsi+2], rax
 ;divide the sum of multiplications by the sum of weights
 mov rax, r12
 div r9
@@ -57,13 +49,14 @@ add rsi, 4
 ;decrement the array size register
 sub r10, 1
 ;jump to turnOnePixelGray unless the array size is zero (the procedure is then finnished)
-cmp r10, 1
-jz turnOnePixelGray
+cmp r10, 0
+jz quit
+jmp turnOnePixelGray
 
 
 
 quit:
-
+mov rax, r10
 ret
 
 

@@ -1,3 +1,2 @@
 LIBRARY gray
-EXPORTS MyProc1
 EXPORTS GrayPixels

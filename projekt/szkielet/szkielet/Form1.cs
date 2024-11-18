@@ -7,7 +7,7 @@ namespace szkielet
     public partial class Form1 : Form
     {
         private bool pictureIsLoaded = false;
-        unsafe private int hellishCast(byte[] toCast){ return (int)&toCast;}
+        //unsafe private int hellishCast(byte[] toCast){ return (int)&toCast;}
         private void GrayscalePixels(byte pointer, int height, int width,
             int weightB, int weightG, int weightR)
         {
@@ -23,7 +23,7 @@ namespace szkielet
             int threadNumber)
         {
             int value = 0;
-            if (threadNumber == noOfThreads)
+            if (threadNumber == noOfThreads - 1)
                 value = totalHeight;
             else
                 value = (totalHeight / noOfThreads) * threadNumber;
@@ -50,23 +50,31 @@ namespace szkielet
 
         private void button_run_Click(object sender, EventArgs e)
         {
+            int j = 0;
+
+            int selectedNoOfThreads = (int)numericUpDown_no_of_threads.Value;
+            int threads = 0; //number of current thread - locked to 0 for testing
+            const int arrayStartOffset = 53;
 
             if (pictureIsLoaded)
             {
                 //prepare range
                 int pixelRowCount = pictureBox_before_grayscale.Image.Height;
                 int pixelcolumnCount = pictureBox_before_grayscale.Image.Width;
-                int i = 0; //number of current thread - locked to 0 for testing
-                const int arrayStartOffset = 53;
-                int selectedNoOfThreads = (int)numericUpDown_no_of_threads.Value;
-                int top = CalculateTopRange(pixelRowCount, selectedNoOfThreads, i);
-                int bot = CalculateBottomRange(pixelRowCount, selectedNoOfThreads, i);
-                int arrSize = (top - bot) * pixelcolumnCount;
+                int top = CalculateTopRange(pixelRowCount, selectedNoOfThreads, threads);
+                int bot = CalculateBottomRange(pixelRowCount, selectedNoOfThreads, threads);
+                int arrayPixelCount = (top - bot) * pixelcolumnCount;
 
                 MemoryStream stream = new MemoryStream();
                 pictureBox_before_grayscale.Image.Save(stream, System.Drawing.Imaging.ImageFormat.Bmp);
                 byte[] bytes = stream.ToArray();
-                //byte array order - 0-53 additional info 54+ pixels in B-G-R-alpha order
+                byte[] arrayForAss = new byte[arrayPixelCount*4];
+
+                Array.ConstrainedCopy(bytes, arrayStartOffset+1, arrayForAss, 0, arrayPixelCount*4);
+                j = 0;
+                //byte array order:
+                //0-53 - additional info
+                //54+ - pixels in B-G-R-alpha order
 
 
                 switch (comboBox_select_dll.Text)
@@ -83,17 +91,21 @@ namespace szkielet
                     case "ass":
                         label_error.Text = " ";
                         [DllImport(@"C:\Users\Pioter\source\repos\Jezyki_assemblerowe_PM\projekt\szkielet\x64\Debug\dll_assembler.dll")]
-                        static extern int GrayPixels(int wB, int wG, int wR, int wS, int pointer, int arrayS);
+                        unsafe static extern int GrayPixels(int wB, int wG, int wR, int wS, byte[] pointer, int arrayS);
                         int x = 1;
                         int wB = (int)numericUpDown_blue.Value;
                         int wG = (int)numericUpDown_green.Value;
                         int wR = (int)numericUpDown_red.Value;
-                        int hellishCast1 = hellishCast(bytes);
+                        wB = 60;
+                        wG = 60;
+                        wR = 60;
+                        //int hellishCast1 = hellishCast(bytes);
                         int wS = wB + wG + wR;
                         int retVal = GrayPixels(wB, wG, wR, wS,
-                            hellishCast1,
-                            arrSize);
-                        int j = 0;
+                            arrayForAss,
+                            arrayPixelCount);
+                        j = 0;
+                        
                         //GrayscalePixels(bytes, (top - bot), pixelcolumnCount,
                         //    (int)numericUpDown_blue.Value,
                         //    (int)numericUpDown_green.Value,
