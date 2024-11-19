@@ -146,6 +146,7 @@
             numericUpDown_red.Name = "numericUpDown_red";
             numericUpDown_red.Size = new Size(63, 27);
             numericUpDown_red.TabIndex = 10;
+            numericUpDown_red.Value = new decimal(new int[] { 6, 0, 0, 0 });
             // 
             // numericUpDown_green
             // 
@@ -153,6 +154,7 @@
             numericUpDown_green.Name = "numericUpDown_green";
             numericUpDown_green.Size = new Size(63, 27);
             numericUpDown_green.TabIndex = 11;
+            numericUpDown_green.Value = new decimal(new int[] { 6, 0, 0, 0 });
             // 
             // numericUpDown_blue
             // 
@@ -160,6 +162,7 @@
             numericUpDown_blue.Name = "numericUpDown_blue";
             numericUpDown_blue.Size = new Size(63, 27);
             numericUpDown_blue.TabIndex = 12;
+            numericUpDown_blue.Value = new decimal(new int[] { 6, 0, 0, 0 });
             // 
             // label_red
             // 
@@ -231,9 +234,9 @@
             // 
             // pictureBox_after_grayscale
             // 
-            pictureBox_after_grayscale.Location = new Point(610, 32);
+            pictureBox_after_grayscale.Location = new Point(306, 178);
             pictureBox_after_grayscale.Name = "pictureBox_after_grayscale";
-            pictureBox_after_grayscale.Size = new Size(125, 62);
+            pictureBox_after_grayscale.Size = new Size(207, 122);
             pictureBox_after_grayscale.SizeMode = PictureBoxSizeMode.Zoom;
             pictureBox_after_grayscale.TabIndex = 20;
             pictureBox_after_grayscale.TabStop = false;

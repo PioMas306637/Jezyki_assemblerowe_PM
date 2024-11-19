@@ -13,11 +13,7 @@ namespace szkielet
         {
 
         }
-        public byte[] ImageToByte(Bitmap img)
-        {
-            ImageConverter converter = new ImageConverter();
-            return (byte[])converter.ConvertTo(img, typeof(byte[]));
-        }
+
         private int CalculateTopRange(int totalHeight,
             int noOfThreads,
             int threadNumber)
@@ -50,78 +46,99 @@ namespace szkielet
 
         private void button_run_Click(object sender, EventArgs e)
         {
-            int j = 0;
-
-            int selectedNoOfThreads = (int)numericUpDown_no_of_threads.Value;
-            int threads = 0; //number of current thread - locked to 0 for testing
-            const int arrayStartOffset = 53;
-
+            bool runCpp = false;
+            bool runAss = false;
+            bool prepVars = false;
             if (pictureIsLoaded)
             {
-                //prepare range
+                switch (comboBox_select_dll.Text)
+                {
+                    case "cpp":
+                        label_error.Text = " ";
+                        runCpp = true;
+                        prepVars = true;
+                        break;
+                    case "ass":
+                        label_error.Text = " ";
+                        runAss = true;
+                        prepVars = true;
+                        break;
+                    default:
+                        label_error.Text = "select one dll to run!";
+                        break;
+                }
+            }
+            else
+            {
+                label_error.Text = "select a picture to run!";
+            }
+
+            if (prepVars)
+            {
+                const int arrayStartOffset = 53;
+                int bytesForOnePixel;
+                if (pictureBox_before_grayscale.Image.PixelFormat.HasFlag(PixelFormat.Alpha))
+                    bytesForOnePixel = 4;
+                else
+                    bytesForOnePixel = 3;
+
+                int selectedNoOfThreads = (int)numericUpDown_no_of_threads.Value;
+                int threads = 0; //number of current thread - locked to 0 for testing
+
                 int pixelRowCount = pictureBox_before_grayscale.Image.Height;
                 int pixelcolumnCount = pictureBox_before_grayscale.Image.Width;
                 int top = CalculateTopRange(pixelRowCount, selectedNoOfThreads, threads);
                 int bot = CalculateBottomRange(pixelRowCount, selectedNoOfThreads, threads);
                 int arrayPixelCount = (top - bot) * pixelcolumnCount;
-
-                MemoryStream stream = new MemoryStream();
-                pictureBox_before_grayscale.Image.Save(stream, System.Drawing.Imaging.ImageFormat.Bmp);
-                byte[] bytes = stream.ToArray();
-                byte[] arrayForAss = new byte[arrayPixelCount*4];
-
-                Array.ConstrainedCopy(bytes, arrayStartOffset+1, arrayForAss, 0, arrayPixelCount*4);
-                j = 0;
-                //byte array order:
-                //0-53 - additional info
-                //54+ - pixels in B-G-R-alpha order
+                int arrayByteCount = arrayPixelCount * bytesForOnePixel;
 
 
-                switch (comboBox_select_dll.Text)
+                if (runCpp)
                 {
-                    case "cpp":
-                        label_error.Text = " ";
-                        //run dll
+                    //run dll
 
-                        //save results
+                    //save results
 
-                        //present results
-
-                        break;
-                    case "ass":
-                        label_error.Text = " ";
-                        [DllImport(@"C:\Users\Pioter\source\repos\Jezyki_assemblerowe_PM\projekt\szkielet\x64\Debug\dll_assembler.dll")]
-                        unsafe static extern int GrayPixels(int wB, int wG, int wR, int wS, byte[] pointer, int arrayS);
-                        int x = 1;
-                        int wB = (int)numericUpDown_blue.Value;
-                        int wG = (int)numericUpDown_green.Value;
-                        int wR = (int)numericUpDown_red.Value;
-                        wB = 60;
-                        wG = 60;
-                        wR = 60;
-                        //int hellishCast1 = hellishCast(bytes);
-                        int wS = wB + wG + wR;
-                        int retVal = GrayPixels(wB, wG, wR, wS,
-                            arrayForAss,
-                            arrayPixelCount);
-                        j = 0;
-                        
-                        //GrayscalePixels(bytes, (top - bot), pixelcolumnCount,
-                        //    (int)numericUpDown_blue.Value,
-                        //    (int)numericUpDown_green.Value,
-                        //    (int)numericUpDown_red.Value);
-
-
-                        break;
-                    default:
-                        label_error.Text = "select one dll to run!";
-
-                        break;
+                    //present results
                 }
-            } else
-            {
-                label_error.Text = "select a picture to run!";
+                if (runAss)
+                {
+                    MemoryStream stream = new MemoryStream();
+                    pictureBox_before_grayscale.Image.Save(stream, System.Drawing.Imaging.ImageFormat.Bmp);
+                    byte[] bytes = stream.ToArray();
+                    byte[] arrayForAss = new byte[arrayByteCount];
+                    Array.ConstrainedCopy(bytes, arrayStartOffset + 1, arrayForAss, 0, arrayByteCount);
+                    //byte array order:
+                    //0-53 - additional info
+                    //54+ - pixels in B-G-R-alpha order
+                    [DllImport(@"C:\Users\Pioter\source\repos\Jezyki_assemblerowe_PM\projekt\szkielet\x64\Debug\dll_assembler.dll")]
+                    unsafe static extern int GrayPixels(int wB, int wG, int wR, int wS, byte[] pointer, int arrayS, int increment);
+                    int wB = (int)numericUpDown_blue.Value;
+                    int wG = (int)numericUpDown_green.Value;
+                    int wR = (int)numericUpDown_red.Value;
+                    int wS = wB + wG + wR;
+                    int retVal = GrayPixels(wB, wG, wR, wS,
+                        arrayForAss,
+                        arrayPixelCount,
+                        bytesForOnePixel);
+
+                    byte[] arrayForNewPic = new byte[bytes.Length];
+                    Array.ConstrainedCopy(bytes, 0, arrayForNewPic, 0, arrayStartOffset);
+                    Array.ConstrainedCopy(arrayForAss, 0, arrayForNewPic, arrayStartOffset + 1, arrayForAss.Length);
+                    Bitmap bmp;
+                    using (var ms = new MemoryStream(arrayForNewPic))
+                    {
+                        bmp = new Bitmap(ms);
+                    }
+                    pictureBox_after_grayscale.Image = bmp;
+                    //GrayscalePixels(bytes, (top - bot), pixelcolumnCount,
+                    //    (int)numericUpDown_blue.Value,
+                    //    (int)numericUpDown_green.Value,
+                    //    (int)numericUpDown_red.Value);
+
+                }
             }
+            
         }
 
         private void button_pick_picture_Click(object sender, EventArgs e)
@@ -133,13 +150,11 @@ namespace szkielet
                     new Bitmap(openFileDialog1.FileName);
                 pictureBox_before_grayscale.Image = picture;
                 pictureIsLoaded = true;
-
             }
             catch (System.ArgumentException ex)
             {
                 label_error.Text = "select a VALID picture to run!";
             }
-
         }
     }
 }
