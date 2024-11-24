@@ -1,13 +1,152 @@
 using System.Drawing.Imaging;
+using System.Numerics;
 using System.Runtime.InteropServices;
+using System.Windows.Forms;
 
 namespace szkielet
 {
 
     public partial class Form1 : Form
     {
+        private class VarsForThread
+        {
+            int top;
+            int bot;
+            int pixelCount;
+            public VarsForThread(int curTop, int curBot, int curPixelCount)
+            {
+                top = curTop;
+                bot = curBot;
+                pixelCount = curPixelCount;
+            }
+            public int getPixelCount() {  return pixelCount; }
+        };
+        private class GrayCoordinator
+        {            
+            private List<VarsForThread> nonCommonVars = new List<VarsForThread>();
+
+            int threads = 0; //number of current thread
+           
+            int arrayStartOffset;
+            int bytesForOnePixel;
+            int selectedNoOfThreads = 0;
+            int pixelRowCount;
+            int pixelColumnCount;
+            int wB;
+            int wG;
+            int wR;
+            int wS;
+            int commonArrayByteCount;
+            byte[] arrayForAss;
+            byte[] bytesFromPic;
+            //byte array order:
+            //0-53 - additional info
+            //54+ - pixels in B-G-R-alpha order
+            Image image;
+
+
+            private int CalculateTopRange(int totalHeight,
+                int noOfThreads,
+                int threadNumber)
+            {
+                int value = 0;
+                if (threadNumber == noOfThreads - 1)
+                    value = totalHeight;
+                else
+                    value = (totalHeight / noOfThreads) * threadNumber;
+                return value;
+            }
+            private int CalculateBottomRange(int totalHeight,
+                int noOfThreads,
+                int threadNumber)
+            {
+                int value = (totalHeight / noOfThreads) * threadNumber;
+                return value;
+            }
+            public void prepCommonVars(int bForOnePixel, int sNoOfThreads,
+                int pRowCount, int pColumnCount, int b, int g, int r)
+            {
+                arrayStartOffset = 53;
+                bytesForOnePixel = bForOnePixel;
+                selectedNoOfThreads = sNoOfThreads;
+                pixelRowCount = pRowCount;
+                pixelColumnCount = pColumnCount;
+                wB = b;
+                wG = g;
+                wR = r;
+                wS = wB + wG + wR;
+
+                int curTop = CalculateTopRange(pixelRowCount, 1, 0);
+                int curBot = CalculateBottomRange(pixelRowCount, 1, 0);
+                int curArrayPixelCount = (curTop - curBot) * pixelColumnCount;
+                commonArrayByteCount = curArrayPixelCount * bytesForOnePixel;
+            }
+            public void prepNonCommonVars()
+            {
+                int curTop;
+                int curBot;
+                int arrayPixelCount;
+                //int arrayByteCount;
+                for (int i = 0; i < selectedNoOfThreads; i++)
+                {
+                    curTop = CalculateTopRange(pixelRowCount, selectedNoOfThreads, i);
+                    curBot = CalculateBottomRange(pixelRowCount, selectedNoOfThreads, i);
+                    arrayPixelCount = (curTop - curBot) * pixelColumnCount;
+                    //arrayByteCount = arrayPixelCount * bytesForOnePixel;
+                    nonCommonVars.Add(new VarsForThread(curTop, curBot, arrayPixelCount));
+                }
+            }
+            public void prepArray()
+            {
+                MemoryStream stream = new MemoryStream();
+                image.Save(stream, System.Drawing.Imaging.ImageFormat.Bmp);
+                bytesFromPic = stream.ToArray();
+                arrayForAss = new byte[commonArrayByteCount];
+                Array.ConstrainedCopy(bytesFromPic, arrayStartOffset + 1, arrayForAss, 0, commonArrayByteCount);
+            }
+            public void executeGrayfication()
+            {
+
+                [DllImport(@"C:\Users\Pioter\source\repos\Jezyki_assemblerowe_PM\projekt\szkielet\x64\Debug\dll_assembler.dll")]
+                unsafe static extern int GrayPixels(int wB, int wG, int wR, int wS, byte[] pointer, int arrayS, int increment);
+                for (int i = 0; i < selectedNoOfThreads; i++)
+                {
+                    int retVal = GrayPixels(wB, wG, wR, wS,
+                        arrayForAss,
+                        nonCommonVars[i].getPixelCount(),
+                        bytesForOnePixel);
+                }
+            }
+            public void prepFinalImage()
+            {
+                byte[] arrayForNewPic = new byte[bytesFromPic.Length];
+                Array.ConstrainedCopy(bytesFromPic, 0, arrayForNewPic, 0, arrayStartOffset);
+                Array.ConstrainedCopy(arrayForAss, 0, arrayForNewPic, arrayStartOffset + 1, arrayForAss.Length);
+                Bitmap bmp;
+                using (var ms = new MemoryStream(arrayForNewPic))
+                {
+                    bmp = new Bitmap(ms);
+                }
+                image = bmp;
+            }
+            public void setImage(Image img)
+            {
+                image = img;
+            }
+            public Image getImage()
+            {
+                return image;
+            }
+            public void setArray(byte[] input)
+            {
+                arrayForAss = input;
+            }
+            public byte[] getArray()
+            {
+                return arrayForAss;
+            }
+        };
         private bool pictureIsLoaded = false;
-        //unsafe private int hellishCast(byte[] toCast){ return (int)&toCast;}
         private void GrayscalePixels(byte pointer, int height, int width,
             int weightB, int weightG, int weightR)
         {
@@ -75,22 +214,22 @@ namespace szkielet
 
             if (prepVars)
             {
-                const int arrayStartOffset = 53;
-                int bytesForOnePixel;
-                if (pictureBox_before_grayscale.Image.PixelFormat.HasFlag(PixelFormat.Alpha))
-                    bytesForOnePixel = 4;
-                else
-                    bytesForOnePixel = 3;
+                GrayCoordinator koordynator = new GrayCoordinator();
 
+                int bytesForOnePixel = (pictureBox_before_grayscale.Image.PixelFormat.HasFlag(PixelFormat.Alpha)) ? 4 : 3;
                 int selectedNoOfThreads = (int)numericUpDown_no_of_threads.Value;
-                int threads = 0; //number of current thread - locked to 0 for testing
-
                 int pixelRowCount = pictureBox_before_grayscale.Image.Height;
-                int pixelcolumnCount = pictureBox_before_grayscale.Image.Width;
-                int top = CalculateTopRange(pixelRowCount, selectedNoOfThreads, threads);
-                int bot = CalculateBottomRange(pixelRowCount, selectedNoOfThreads, threads);
-                int arrayPixelCount = (top - bot) * pixelcolumnCount;
-                int arrayByteCount = arrayPixelCount * bytesForOnePixel;
+                int pixelColumnCount = pictureBox_before_grayscale.Image.Width;
+                int wB = (int)numericUpDown_blue.Value;
+                int wG = (int)numericUpDown_green.Value;
+                int wR = (int)numericUpDown_red.Value;
+
+                koordynator.prepCommonVars(bytesForOnePixel,
+                    selectedNoOfThreads,
+                    pixelRowCount,
+                    pixelColumnCount,
+                    wB, wG, wR);
+                koordynator.prepNonCommonVars();
 
 
                 if (runCpp)
@@ -103,39 +242,11 @@ namespace szkielet
                 }
                 if (runAss)
                 {
-                    MemoryStream stream = new MemoryStream();
-                    pictureBox_before_grayscale.Image.Save(stream, System.Drawing.Imaging.ImageFormat.Bmp);
-                    byte[] bytes = stream.ToArray();
-                    byte[] arrayForAss = new byte[arrayByteCount];
-                    Array.ConstrainedCopy(bytes, arrayStartOffset + 1, arrayForAss, 0, arrayByteCount);
-                    //byte array order:
-                    //0-53 - additional info
-                    //54+ - pixels in B-G-R-alpha order
-                    [DllImport(@"C:\Users\Pioter\source\repos\Jezyki_assemblerowe_PM\projekt\szkielet\x64\Debug\dll_assembler.dll")]
-                    unsafe static extern int GrayPixels(int wB, int wG, int wR, int wS, byte[] pointer, int arrayS, int increment);
-                    int wB = (int)numericUpDown_blue.Value;
-                    int wG = (int)numericUpDown_green.Value;
-                    int wR = (int)numericUpDown_red.Value;
-                    int wS = wB + wG + wR;
-                    int retVal = GrayPixels(wB, wG, wR, wS,
-                        arrayForAss,
-                        arrayPixelCount,
-                        bytesForOnePixel);
-
-                    byte[] arrayForNewPic = new byte[bytes.Length];
-                    Array.ConstrainedCopy(bytes, 0, arrayForNewPic, 0, arrayStartOffset);
-                    Array.ConstrainedCopy(arrayForAss, 0, arrayForNewPic, arrayStartOffset + 1, arrayForAss.Length);
-                    Bitmap bmp;
-                    using (var ms = new MemoryStream(arrayForNewPic))
-                    {
-                        bmp = new Bitmap(ms);
-                    }
-                    pictureBox_after_grayscale.Image = bmp;
-                    //GrayscalePixels(bytes, (top - bot), pixelcolumnCount,
-                    //    (int)numericUpDown_blue.Value,
-                    //    (int)numericUpDown_green.Value,
-                    //    (int)numericUpDown_red.Value);
-
+                    koordynator.setImage(pictureBox_before_grayscale.Image);
+                    koordynator.prepArray();
+                    koordynator.executeGrayfication();
+                    koordynator.prepFinalImage();
+                    pictureBox_after_grayscale.Image = koordynator.getImage();
                 }
             }
             
