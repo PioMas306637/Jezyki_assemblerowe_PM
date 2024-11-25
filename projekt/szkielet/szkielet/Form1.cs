@@ -2,6 +2,8 @@ using System.Drawing.Imaging;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using System.Xml;
+using System.Threading;
 
 namespace szkielet
 {
@@ -24,7 +26,7 @@ namespace szkielet
         private class GrayCoordinator
         {            
             private List<VarsForThread> nonCommonVars = new List<VarsForThread>();
-
+            private List<Thread> threadList = new List<Thread>();
             int threads = 0; //number of current thread
            
             int arrayStartOffset;
@@ -45,9 +47,7 @@ namespace szkielet
             Image image;
 
 
-            private int CalculateTopRange(int totalHeight,
-                int noOfThreads,
-                int threadNumber)
+            private int CalculateTopRange(int totalHeight, int noOfThreads, int threadNumber)
             {
                 int value = 0;
                 if (threadNumber == noOfThreads - 1)
@@ -56,12 +56,19 @@ namespace szkielet
                     value = (totalHeight / noOfThreads) * threadNumber;
                 return value;
             }
-            private int CalculateBottomRange(int totalHeight,
-                int noOfThreads,
-                int threadNumber)
+            private int CalculateBottomRange(int totalHeight, int noOfThreads, int threadNumber)
             {
                 int value = (totalHeight / noOfThreads) * threadNumber;
                 return value;
+            }
+            private int calculateNoOfPixels(int totalHeight, int noOfThreads, int threadNumber)
+            {
+                int output = 0;
+                if ((threadNumber+1) == noOfThreads)
+                    output = totalHeight - (totalHeight / noOfThreads) * threadNumber;
+                else
+                    output = (totalHeight / noOfThreads);
+                return output * pixelColumnCount;
             }
             public void prepCommonVars(int bForOnePixel, int sNoOfThreads,
                 int pRowCount, int pColumnCount, int b, int g, int r)
@@ -106,7 +113,6 @@ namespace szkielet
             }
             public void executeGrayfication()
             {
-
                 [DllImport(@"C:\Users\Pioter\source\repos\Jezyki_assemblerowe_PM\projekt\szkielet\x64\Debug\dll_assembler.dll")]
                 unsafe static extern int GrayPixels(int wB, int wG, int wR, int wS, byte[] pointer, int arrayS, int increment);
                 for (int i = 0; i < selectedNoOfThreads; i++)
@@ -116,6 +122,32 @@ namespace szkielet
                         nonCommonVars[i].getPixelCount(),
                         bytesForOnePixel);
                 }
+            }
+            public void MultiThreadexecuteGrayfication()
+            {
+                [DllImport(@"C:\Users\Pioter\source\repos\Jezyki_assemblerowe_PM\projekt\szkielet\x64\Debug\dll_assembler.dll")]
+                unsafe static extern int GrayPixelsMulti(int wB, int wG, int wR, int wS, byte[] pointer, int arrayS, int increment, int startingIndex);
+                for (int i = 0; i < selectedNoOfThreads; i++)
+                {
+                    int amountOfPixels = calculateNoOfPixels(pixelRowCount, selectedNoOfThreads, i);
+                    int byteOffset = CalculateBottomRange(pixelRowCount, selectedNoOfThreads, i) * pixelColumnCount * bytesForOnePixel;
+                   // int retVal = GrayPixelsMulti(wB, wG, wR, wS, arrayForAss, amountOfPixels, bytesForOnePixel, byteOffset);
+
+                    Thread t = new Thread(() => 
+                    {
+                        GrayPixelsMulti(wB, wG, wR, wS, arrayForAss, amountOfPixels, bytesForOnePixel, byteOffset);
+                    });
+                    threadList.Add(t);
+                }
+                for (int i = 0; i < selectedNoOfThreads; i++)
+                {
+                    threadList[i].Start();
+                }
+                for (int i = 0; i < selectedNoOfThreads; i++)
+                {
+                    threadList[i].Join();
+                }
+                threadList.Clear();
             }
             public void prepFinalImage()
             {
@@ -230,8 +262,6 @@ namespace szkielet
                     pixelColumnCount,
                     wB, wG, wR);
                 koordynator.prepNonCommonVars();
-
-
                 if (runCpp)
                 {
                     //run dll
@@ -244,7 +274,8 @@ namespace szkielet
                 {
                     koordynator.setImage(pictureBox_before_grayscale.Image);
                     koordynator.prepArray();
-                    koordynator.executeGrayfication();
+                    //koordynator.executeGrayfication();
+                    koordynator.MultiThreadexecuteGrayfication();
                     koordynator.prepFinalImage();
                     pictureBox_after_grayscale.Image = koordynator.getImage();
                 }
