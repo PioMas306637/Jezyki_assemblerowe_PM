@@ -49,6 +49,7 @@
             label_error = new Label();
             openFileDialog1 = new OpenFileDialog();
             pictureBox_after_grayscale = new PictureBox();
+            label_no_of_cores = new Label();
             ((System.ComponentModel.ISupportInitialize)numericUpDown_no_of_threads).BeginInit();
             ((System.ComponentModel.ISupportInitialize)numericUpDown_red).BeginInit();
             ((System.ComponentModel.ISupportInitialize)numericUpDown_green).BeginInit();
@@ -241,11 +242,21 @@
             pictureBox_after_grayscale.TabIndex = 20;
             pictureBox_after_grayscale.TabStop = false;
             // 
+            // label_no_of_cores
+            // 
+            label_no_of_cores.AutoSize = true;
+            label_no_of_cores.Location = new Point(214, 142);
+            label_no_of_cores.Name = "label_no_of_cores";
+            label_no_of_cores.Size = new Size(16, 20);
+            label_no_of_cores.TabIndex = 21;
+            label_no_of_cores.Text = "?";
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
+            Controls.Add(label_no_of_cores);
             Controls.Add(pictureBox_after_grayscale);
             Controls.Add(label_error);
             Controls.Add(pictureBox_before_grayscale);
@@ -302,5 +313,6 @@
         private Label label_error;
         private OpenFileDialog openFileDialog1;
         private PictureBox pictureBox_after_grayscale;
+        private Label label_no_of_cores;
     }
 }

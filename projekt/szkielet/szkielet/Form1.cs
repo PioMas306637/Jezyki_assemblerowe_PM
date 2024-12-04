@@ -21,14 +21,14 @@ namespace szkielet
                 bot = curBot;
                 pixelCount = curPixelCount;
             }
-            public int getPixelCount() {  return pixelCount; }
+            public int getPixelCount() { return pixelCount; }
         };
         private class GrayCoordinator
-        {            
+        {
             private List<VarsForThread> nonCommonVars = new List<VarsForThread>();
             private List<Thread> threadList = new List<Thread>();
             int threads = 0; //number of current thread
-           
+
             int arrayStartOffset;
             int bytesForOnePixel;
             int selectedNoOfThreads = 0;
@@ -64,7 +64,7 @@ namespace szkielet
             private int calculateNoOfPixels(int totalHeight, int noOfThreads, int threadNumber)
             {
                 int output = 0;
-                if ((threadNumber+1) == noOfThreads)
+                if ((threadNumber + 1) == noOfThreads)
                     output = totalHeight - (totalHeight / noOfThreads) * threadNumber;
                 else
                     output = (totalHeight / noOfThreads);
@@ -82,6 +82,7 @@ namespace szkielet
                 wG = g;
                 wR = r;
                 wS = wB + wG + wR;
+                wS = (wS == 0) ? 1 : wS;
 
                 int curTop = CalculateTopRange(pixelRowCount, 1, 0);
                 int curBot = CalculateBottomRange(pixelRowCount, 1, 0);
@@ -131,9 +132,9 @@ namespace szkielet
                 {
                     int amountOfPixels = calculateNoOfPixels(pixelRowCount, selectedNoOfThreads, i);
                     int byteOffset = CalculateBottomRange(pixelRowCount, selectedNoOfThreads, i) * pixelColumnCount * bytesForOnePixel;
-                   // int retVal = GrayPixelsMulti(wB, wG, wR, wS, arrayForAss, amountOfPixels, bytesForOnePixel, byteOffset);
+                    // int retVal = GrayPixelsMulti(wB, wG, wR, wS, arrayForAss, amountOfPixels, bytesForOnePixel, byteOffset);
 
-                    Thread t = new Thread(() => 
+                    Thread t = new Thread(() =>
                     {
                         GrayPixelsMulti(wB, wG, wR, wS, arrayForAss, amountOfPixels, bytesForOnePixel, byteOffset);
                     });
@@ -179,31 +180,6 @@ namespace szkielet
             }
         };
         private bool pictureIsLoaded = false;
-        private void GrayscalePixels(byte pointer, int height, int width,
-            int weightB, int weightG, int weightR)
-        {
-
-        }
-
-        private int CalculateTopRange(int totalHeight,
-            int noOfThreads,
-            int threadNumber)
-        {
-            int value = 0;
-            if (threadNumber == noOfThreads - 1)
-                value = totalHeight;
-            else
-                value = (totalHeight / noOfThreads) * threadNumber;
-            return value;
-        }
-        private int CalculateBottomRange(int totalHeight,
-            int noOfThreads,
-            int threadNumber)
-        {
-            int value = (totalHeight / noOfThreads) * threadNumber;
-            return value;
-        }
-
 
         public Form1()
         {
@@ -212,7 +188,8 @@ namespace szkielet
 
         private void Form1_Load(object sender, EventArgs e)
         {
-
+            int wykrytaIlosc = Environment.ProcessorCount;
+            label_no_of_cores.Text = wykrytaIlosc.ToString();
         }
 
         private void button_run_Click(object sender, EventArgs e)
@@ -272,15 +249,21 @@ namespace szkielet
                 }
                 if (runAss)
                 {
+                    var watch = System.Diagnostics.Stopwatch.StartNew();
+
                     koordynator.setImage(pictureBox_before_grayscale.Image);
                     koordynator.prepArray();
                     //koordynator.executeGrayfication();
                     koordynator.MultiThreadexecuteGrayfication();
                     koordynator.prepFinalImage();
                     pictureBox_after_grayscale.Image = koordynator.getImage();
+
+                    watch.Stop();
+                    var czasMili = watch.ElapsedMilliseconds;
+                    label_error.Text = "zamiana zajê³a " + czasMili.ToString() + " ms";
                 }
             }
-            
+
         }
 
         private void button_pick_picture_Click(object sender, EventArgs e)
@@ -298,5 +281,7 @@ namespace szkielet
                 label_error.Text = "select a VALID picture to run!";
             }
         }
+
+
     }
 }
