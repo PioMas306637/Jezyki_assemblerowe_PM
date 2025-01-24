@@ -282,6 +282,5 @@ namespace szkielet
             }
         }
 
-
     }
 }

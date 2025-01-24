@@ -215,7 +215,7 @@
             // 
             pictureBox_before_grayscale.Location = new Point(306, 32);
             pictureBox_before_grayscale.Name = "pictureBox_before_grayscale";
-            pictureBox_before_grayscale.Size = new Size(207, 122);
+            pictureBox_before_grayscale.Size = new Size(449, 164);
             pictureBox_before_grayscale.SizeMode = PictureBoxSizeMode.Zoom;
             pictureBox_before_grayscale.TabIndex = 18;
             pictureBox_before_grayscale.TabStop = false;
@@ -235,9 +235,9 @@
             // 
             // pictureBox_after_grayscale
             // 
-            pictureBox_after_grayscale.Location = new Point(306, 178);
+            pictureBox_after_grayscale.Location = new Point(306, 236);
             pictureBox_after_grayscale.Name = "pictureBox_after_grayscale";
-            pictureBox_after_grayscale.Size = new Size(207, 122);
+            pictureBox_after_grayscale.Size = new Size(449, 164);
             pictureBox_after_grayscale.SizeMode = PictureBoxSizeMode.Zoom;
             pictureBox_after_grayscale.TabIndex = 20;
             pictureBox_after_grayscale.TabStop = false;
