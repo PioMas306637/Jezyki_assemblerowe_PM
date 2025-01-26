@@ -150,6 +150,36 @@ namespace szkielet
                 }
                 threadList.Clear();
             }
+            public void MultiThreadexecuteGrayficationVector()
+            {
+                [DllImport(@"C:\Users\Pioter\source\repos\Jezyki_assemblerowe_PM\projekt\szkielet\x64\Debug\dll_assembler.dll")]
+                unsafe static extern float GrayPixelsVector(float wB, float wG, float wR, float wS,
+                int arrayS, int increment, int startingIndex, byte[] pointer);
+                for (int i = 0; i < selectedNoOfThreads; i++)
+                {
+                    int amountOfPixels = calculateNoOfPixels(pixelRowCount, selectedNoOfThreads, i);
+                    int byteOffset = CalculateBottomRange(pixelRowCount, selectedNoOfThreads, i)
+                        * pixelColumnCount * bytesForOnePixel;
+                    float ret = GrayPixelsVector(0.2f, 0.3f, 0.5f, 1.0f,
+                        amountOfPixels, bytesForOnePixel, byteOffset, arrayForAss);
+                    int a = 0;
+                    Thread t = new Thread(() =>
+                    {
+                        //GrayPixelsVector(0.2f, 0.2f, 0.6f, 1.0f, arrayForAss, amountOfPixels, bytesForOnePixel, byteOffset);
+                    });
+                    threadList.Add(t);
+                }
+                for (int i = 0; i < selectedNoOfThreads; i++)
+                {
+                    threadList[i].Start();
+                }
+                for (int i = 0; i < selectedNoOfThreads; i++)
+                {
+                    threadList[i].Join();
+                }
+                threadList.Clear();
+            }
+
             public void prepFinalImage()
             {
                 byte[] arrayForNewPic = new byte[bytesFromPic.Length];
@@ -254,7 +284,8 @@ namespace szkielet
                     koordynator.setImage(pictureBox_before_grayscale.Image);
                     koordynator.prepArray();
                     //koordynator.executeGrayfication();
-                    koordynator.MultiThreadexecuteGrayfication();
+                    //koordynator.MultiThreadexecuteGrayfication();
+                    koordynator.MultiThreadexecuteGrayficationVector();
                     koordynator.prepFinalImage();
                     pictureBox_after_grayscale.Image = koordynator.getImage();
 

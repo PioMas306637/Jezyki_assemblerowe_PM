@@ -237,7 +237,7 @@
             // 
             pictureBox_after_grayscale.Location = new Point(306, 236);
             pictureBox_after_grayscale.Name = "pictureBox_after_grayscale";
-            pictureBox_after_grayscale.Size = new Size(449, 164);
+            pictureBox_after_grayscale.Size = new Size(449, 378);
             pictureBox_after_grayscale.SizeMode = PictureBoxSizeMode.Zoom;
             pictureBox_after_grayscale.TabIndex = 20;
             pictureBox_after_grayscale.TabStop = false;
@@ -255,7 +255,7 @@
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(800, 450);
+            ClientSize = new Size(800, 643);
             Controls.Add(label_no_of_cores);
             Controls.Add(pictureBox_after_grayscale);
             Controls.Add(label_error);
