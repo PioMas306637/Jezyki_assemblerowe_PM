@@ -143,27 +143,37 @@
             // 
             // numericUpDown_red
             // 
-            numericUpDown_red.Location = new Point(169, 241);
+            numericUpDown_red.DecimalPlaces = 4;
+            numericUpDown_red.Increment = new decimal(new int[] { 1, 0, 0, 262144 });
+            numericUpDown_red.Location = new Point(155, 241);
+            numericUpDown_red.Maximum = new decimal(new int[] { 1, 0, 0, 0 });
             numericUpDown_red.Name = "numericUpDown_red";
-            numericUpDown_red.Size = new Size(63, 27);
+            numericUpDown_red.RightToLeft = RightToLeft.No;
+            numericUpDown_red.Size = new Size(77, 27);
             numericUpDown_red.TabIndex = 10;
-            numericUpDown_red.Value = new decimal(new int[] { 6, 0, 0, 0 });
+            numericUpDown_red.Value = new decimal(new int[] { 2126, 0, 0, 262144 });
             // 
             // numericUpDown_green
             // 
-            numericUpDown_green.Location = new Point(169, 280);
+            numericUpDown_green.DecimalPlaces = 4;
+            numericUpDown_green.Increment = new decimal(new int[] { 1, 0, 0, 262144 });
+            numericUpDown_green.Location = new Point(155, 280);
+            numericUpDown_green.Maximum = new decimal(new int[] { 1, 0, 0, 0 });
             numericUpDown_green.Name = "numericUpDown_green";
-            numericUpDown_green.Size = new Size(63, 27);
+            numericUpDown_green.Size = new Size(77, 27);
             numericUpDown_green.TabIndex = 11;
-            numericUpDown_green.Value = new decimal(new int[] { 6, 0, 0, 0 });
+            numericUpDown_green.Value = new decimal(new int[] { 7152, 0, 0, 262144 });
             // 
             // numericUpDown_blue
             // 
-            numericUpDown_blue.Location = new Point(169, 319);
+            numericUpDown_blue.DecimalPlaces = 4;
+            numericUpDown_blue.Increment = new decimal(new int[] { 1, 0, 0, 262144 });
+            numericUpDown_blue.Location = new Point(155, 319);
+            numericUpDown_blue.Maximum = new decimal(new int[] { 1, 0, 0, 0 });
             numericUpDown_blue.Name = "numericUpDown_blue";
-            numericUpDown_blue.Size = new Size(63, 27);
+            numericUpDown_blue.Size = new Size(77, 27);
             numericUpDown_blue.TabIndex = 12;
-            numericUpDown_blue.Value = new decimal(new int[] { 6, 0, 0, 0 });
+            numericUpDown_blue.Value = new decimal(new int[] { 722, 0, 0, 262144 });
             // 
             // label_red
             // 

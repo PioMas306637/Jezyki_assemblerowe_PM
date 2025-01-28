@@ -1,4 +1,2 @@
 LIBRARY gray
-EXPORTS GrayPixels
-EXPORTS GrayPixelsMulti
 EXPORTS GrayPixelsVector
