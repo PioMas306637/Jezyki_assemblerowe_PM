@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "szkielet": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}

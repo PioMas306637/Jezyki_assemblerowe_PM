@@ -152,15 +152,16 @@ namespace szkielet
             }
             public void MultiThreadexecuteGrayficationVector()
             {
+                //zamiast import to load
                 [DllImport(@"C:\Users\Pioter\source\repos\Jezyki_assemblerowe_PM\projekt\szkielet\x64\Debug\dll_assembler.dll")]
-                unsafe static extern float GrayPixelsVector(float wB, float wG, float wR, float wS,
+                unsafe static extern int GrayPixelsVector(int wB, int wG, int wR, int wS,
                 int arrayS, int increment, int startingIndex, byte[] pointer);
                 for (int i = 0; i < selectedNoOfThreads; i++)
                 {
                     int amountOfPixels = calculateNoOfPixels(pixelRowCount, selectedNoOfThreads, i);
                     int byteOffset = CalculateBottomRange(pixelRowCount, selectedNoOfThreads, i)
                         * pixelColumnCount * bytesForOnePixel;
-                    float ret = GrayPixelsVector(0.2f, 0.3f, 0.5f, 1.0f,
+                    int ret = GrayPixelsVector(1, 2, 3, 6,
                         amountOfPixels, bytesForOnePixel, byteOffset, arrayForAss);
                     int a = 0;
                     Thread t = new Thread(() =>
