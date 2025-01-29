@@ -1,13 +1,47 @@
 .code
 
 
+; this procedure takes 8 arguments
+; 1 - the weight of blue, automaticaly moved to rcx
+; 2 - the weight of red, automaticaly moved to rdx
+; 3 - the weight of green, automaticaly moved to r8
+; 4 - the sum of weights, automaticaly moved to r9
+; 5 - the amount of pixels for the procedure to process,
+;	taken from the stack, and stored in rcx for the duration of the procedure
+; 6 - the amount of bytes used for describing a single pixel,
+;	it is 4 if alpha channel is present, 3 if not,
+;	taken from the stack, and stored in rbx for the duration of the procedure
+; 7 - the starting offset for this procedure, used in multithreaded execution.
+;	It is added to the array pointer and used as the pixel, from which the procedure
+;	starts operating,
+;	taken from the stack, and stored in r14 for the setup phase
+;	(later, a loop counter is stored in r14)
+; 8 - a pointer to the array of bytes to overwrite,
+;	taken from the stack, and stored in rsi for the duration of the procedure
+;
+; provided correct execution, this procedure returns a 0 in the RAX register
+;
+; this procedure destroys the following registers during its operation:
+;	- RAX
+;	- RCX
+;	- RDX
+;	- R8
+;	- R9
+;	- YMM0
+;	- YMM1
+;	- YMM2
+;	- YMM3
+;	- YMM4
+;	- YMM5
+;	- YMM6
+;	- YMM7
+;
+; this procedure uses but restores the following registers before it ends:
+;	- RBX
+;	- R14
+;	- RSI
 
 GrayPixelsVector proc
-
-
-;					blue  red  green   sum
-;					rcx   rdx   r8    r9      rsp+40             rsp+48			rsp+56      rsp+64
-; GrayPixelsVector(int, int, int, int, amountOfPixels, bytesForOnePixel, byteOffset, arrayForAss);
 
 setup:
 cvtsi2ss xmm1, r9				; sum converted from int to float for easier calculations
@@ -18,43 +52,34 @@ cvtsi2ss xmm3, r8				; convert
 vbroadcastss ymm3, xmm3			; broadcast green weight
 cvtsi2ss xmm4, rcx				; convert
 vbroadcastss ymm4, xmm4			; broadcast blue weight
-
-
-mov rcx, [rsp+40]		; pop the array size
-mov rbx, [rsp+48]		; pop the array pointer increment value
-mov r14, [rsp+56]		; pop the array starting index
-mov rsi, [rsp+64]		; pop the array pointer 
-
+push rbx					; save the contents of these registers to restore later on
+push r14
+push rsi
+mov rcx, [rsp+64]		; pop the array size
+mov rbx, [rsp+72]		; pop the array pointer increment value
+mov r14, [rsp+80]		; pop the array starting index
+mov rsi, [rsp+88]		; pop the array pointer 
 add rsi, r14			; start turning pixels gray from the index indicated by r14
-;mov r14, 4				; load loop counter (4) to r14
-
 
 prepare_loop_counter:
 ; if rcx(remaining pixels) >= 4
-; r14(loop_counter) = 4
-; r9(loop_counter_non_modifiable) = 4
+;	r14(loop_counter) = 4
+;	r9(loop_counter_non_modifiable) = 4
 ; if rcx < 4
-; r14 = rcx
-; r9 = rcx
-
+;	r14 = rcx
+;	r9 = rcx
 cmp rcx, 4            
-jge set_to_4			; jump to set_to_4 if rcx >= 4, otherwise just continue
-
+jge set_to_4
 cmp rcx, 0
 je quit
-
 mov r14, rcx          
-mov r9, rcx          
-jmp done               
-
+mov r9, rcx         
+jmp done
 set_to_4:
 mov r14, 4
 mov r9, 4
-
 done:
 sub rcx, r9
-
-
 
 loop_read_from_array:
 movzx rax, byte ptr [rsi]			; fetch first 8 bits (blue) to acumulator, fill remaining 64-8 bits with 0s
@@ -89,7 +114,8 @@ vaddps ymm0, ymm0, ymm5
 vdivps ymm0, ymm0, ymm1
 
 
-									; convert all floats in ymm0 back to integers and put send them back where they belong (overwrite source array)
+									; convert all floats in ymm0 back to integers and
+									; send them back where they belong (overwrite source array)
 loop_write_to_array:
 cvtss2si rax, xmm0					; convert rightmost float to integer in rax
 sub rsi, rbx						; decrement array pointer
@@ -116,6 +142,9 @@ jmp prepare_loop_counter
 
 
 quit:
+pop rsi
+pop r14
+pop rbx
 mov rax, 0
 mov eax, ecx
 ret

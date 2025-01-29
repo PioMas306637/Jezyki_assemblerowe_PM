@@ -5,6 +5,16 @@ using System.Windows.Forms;
 using System.Xml;
 using System.Threading;
 
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Windows.Forms;
+using System.Windows.Forms.DataVisualization.Charting;
+
+
 namespace szkielet
 {
 
@@ -98,19 +108,21 @@ namespace szkielet
             }
             public void RunAssemblerMultiThreadWithXMM()
             {
-                //zamiast import to load
+
+                #if DEBUG
+                [DllImport(@"..\..\..\..\..\x64\Debug\dll_assembler.dll")]
+                #else
+                [DllImport(@"..\..\..\..\..\x64\Release\dll_assembler.dll")] 
+                #endif
+                unsafe static extern int GrayPixelsVector(int wB, int wG, int wR, int wS,
+                int arrayS, int increment, int startingIndex, byte[] pointer);
                 for (int i = 0; i < selectedNoOfThreads; i++)
                 {
                     int amountOfPixels = calculateNoOfPixels(pixelRowCount, selectedNoOfThreads, i);
                     int byteOffset = CalculateBottomRange(pixelRowCount, selectedNoOfThreads, i)
                         * pixelColumnCount * bytesForOnePixel;
-                    //int ret = GrayPixelsVector(1, 2, 3, 6,
-                    //   amountOfPixels, bytesForOnePixel, byteOffset, arrayForAss);
                     Thread t = new Thread(() =>
                     {
-                        [DllImport(@"C:\Users\Pioter\source\repos\Jezyki_assemblerowe_PM\projekt\szkielet\x64\Debug\dll_assembler.dll")]
-                        unsafe static extern int GrayPixelsVector(int wB, int wG, int wR, int wS,
-                        int arrayS, int increment, int startingIndex, byte[] pointer);
                         GrayPixelsVector(wB, wR, wG, wS, amountOfPixels, bytesForOnePixel, byteOffset, arrayForAss);
                     });
                     threadList.Add(t);
@@ -127,7 +139,12 @@ namespace szkielet
             }
             public void RunCppMultiThread()
             {
-                [DllImport(@"C:\Users\Pioter\source\repos\Jezyki_assemblerowe_PM\projekt\szkielet\x64\Debug\dll_cpp.dll")]
+
+#if DEBUG
+                [DllImport(@"..\..\..\..\..\x64\Debug\dll_cpp.dll")]
+#else
+                [DllImport(@"..\..\..\..\..\x64\Release\dll_cpp.dll")]
+#endif
                 unsafe static extern int grayPixels(int wB, int wG, int wR, int wS,
                 int arrayS, int increment, int startingIndex, byte[] pointer);
                 for (int i = 0; i < selectedNoOfThreads; i++)
@@ -135,8 +152,6 @@ namespace szkielet
                     int amountOfPixels = calculateNoOfPixels(pixelRowCount, selectedNoOfThreads, i);
                     int byteOffset = CalculateBottomRange(pixelRowCount, selectedNoOfThreads, i)
                         * pixelColumnCount * bytesForOnePixel;
-                    //int ret = grayPixels(wB, wR, wG, wS,
-                    //   amountOfPixels, bytesForOnePixel, byteOffset, arrayForAss);
                     Thread t = new Thread(() =>
                     {
                         grayPixels(wB, wR, wG, wS, amountOfPixels, bytesForOnePixel, byteOffset, arrayForAss);
@@ -199,23 +214,23 @@ namespace szkielet
                 switch (comboBox_select_dll.Text)
                 {
                     case "cpp":
-                        label_error.Text = " ";
+                        label_error_2.Text = " ";
                         runCpp = true;
                         prepVars = true;
                         break;
                     case "ass":
-                        label_error.Text = " ";
+                        label_error_2.Text = " ";
                         runAss = true;
                         prepVars = true;
                         break;
                     default:
-                        label_error.Text = "select one dll to run!";
+                        label_error_2.Text = "select one dll to run!";
                         break;
                 }
             }
             else
             {
-                label_error.Text = "select a picture to run!";
+                label_error_2.Text = "select a picture to run!";
             }
 
             if (prepVars)
@@ -242,7 +257,7 @@ namespace szkielet
                     var czasMili = watch.ElapsedMilliseconds;
                     koordynator.prepFinalImage();
                     pictureBox_after_grayscale.Image = koordynator.getImage();
-                    label_error.Text = "conversion took " + czasMili.ToString() + " ms";
+                    label_error_2.Text = "function execution took " + czasMili.ToString() + " ms";
                 }
                 if (runAss)
                 {
@@ -254,7 +269,7 @@ namespace szkielet
                     var czasMili = watch.ElapsedMilliseconds;
                     koordynator.prepFinalImage();
                     pictureBox_after_grayscale.Image = koordynator.getImage();
-                    label_error.Text = "conversion took " + czasMili.ToString() + " ms";
+                    label_error_2.Text = "function execution took " + czasMili.ToString() + " ms";
 
                 }
             }
@@ -273,7 +288,7 @@ namespace szkielet
             }
             catch (System.ArgumentException ex)
             {
-                label_error.Text = "select a VALID picture to run!";
+                label_error_2.Text = "select a VALID picture to run!";
             }
         }
 
@@ -295,14 +310,252 @@ namespace szkielet
                 }
                 else
                 {
-                    label_error.Text = "no image to save";
+                    label_error_2.Text = "no image to save";
                 }
             }
             catch
             {
-                label_error.Text = "something went wrong";
+                label_error_2.Text = "something went wrong";
             }
         }
 
+        private void label_grayscale_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void tabPage1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+
+        private void button_histos_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                label_color_or_gs.Text = "color";
+                int[] red = new int[256];
+                int[] green = new int[256];
+                int[] blue = new int[256];
+                for (int x = 0; x < pictureBox_before_grayscale.Image.Width; x++)
+                {
+                    for (int y = 0; y < pictureBox_before_grayscale.Image.Height; y++)
+                    {
+                        Color pixel = ((Bitmap)pictureBox_before_grayscale.Image).GetPixel(x, y);
+                        red[pixel.R]++;
+                        green[pixel.G]++;
+                        blue[pixel.B]++;
+                    }
+                }
+                Chart chartr = new Chart();
+                Chart chartg = new Chart();
+                Chart chartb = new Chart();
+                chartr.Series.Add("red");
+                chartg.Series.Add("green");
+                chartb.Series.Add("blue");
+                chartr.Series["red"].Points.Clear();
+                chartg.Series["green"].Points.Clear();
+                chartb.Series["blue"].Points.Clear();
+                chartr.Series["red"].ChartType = SeriesChartType.Line;
+                chartg.Series["green"].ChartType = SeriesChartType.Line;
+                chartb.Series["blue"].ChartType = SeriesChartType.Line;
+                for (int i = 0; i < 256; i++)
+                {
+                    chartr.Series["red"].Points.AddXY(i, red[i]);
+                    chartg.Series["green"].Points.AddXY(i, green[i]);
+                    chartb.Series["blue"].Points.AddXY(i, blue[i]);
+                }
+                //chart.BackColor = Color.Black;
+                //chart.ForeColor = Color.White;
+                //chart.chart.ChartAreas.Add(new ChartArea());
+
+                chartr.ChartAreas.Add(new ChartArea());
+                chartr.ChartAreas[0].AxisX.Title = "Intensity";
+                chartr.ChartAreas[0].AxisY.Title = "Frequency";
+                chartg.ChartAreas.Add(new ChartArea());
+                chartg.ChartAreas[0].AxisX.Title = "Intensity";
+                chartg.ChartAreas[0].AxisY.Title = "Frequency";
+                chartb.ChartAreas.Add(new ChartArea());
+                chartb.ChartAreas[0].AxisX.Title = "Intensity";
+                chartb.ChartAreas[0].AxisY.Title = "Frequency";
+                chartr.Scale(new SizeF(2, 0.5f));
+                chartg.Scale(new SizeF(2, 0.5f));
+                chartb.Scale(new SizeF(2, 0.5f));
+                chartr.Series[0].Color = Color.Red;
+                chartg.Series[0].Color = Color.Green;
+                chartb.Series[0].Color = Color.Blue;
+
+                float maxFrequency = Math.Max(Math.Max(red.Max(), green.Max()), blue.Max());
+
+                chartr.ChartAreas[0].AxisY.Minimum = 0;
+                chartr.ChartAreas[0].AxisY.Maximum = maxFrequency;
+
+                chartg.ChartAreas[0].AxisY.Minimum = 0;
+                chartg.ChartAreas[0].AxisY.Maximum = maxFrequency;
+
+                chartb.ChartAreas[0].AxisY.Minimum = 0;
+                chartb.ChartAreas[0].AxisY.Maximum = maxFrequency;
+
+                // Create a bitmap to draw the chart to
+                Bitmap bitmapr = new Bitmap(chartr.Width, chartr.Height);
+                Bitmap bitmapg = new Bitmap(chartg.Width, chartg.Height);
+                Bitmap bitmapb = new Bitmap(chartb.Width, chartb.Height);
+
+                // Draw the chart to the bitmap
+                chartr.DrawToBitmap(bitmapr, new Rectangle(0, 0, chartr.Width, chartr.Height));
+                chartg.DrawToBitmap(bitmapg, new Rectangle(0, 0, chartg.Width, chartg.Height));
+                chartb.DrawToBitmap(bitmapb, new Rectangle(0, 0, chartb.Width, chartb.Height));
+
+                // Set the image of the PictureBox to the drawn bitmap
+                pictureBox_chart_r.Image = bitmapr;
+                pictureBox_chart_g.Image = bitmapg;
+                pictureBox_chart_b.Image = bitmapb;
+
+
+
+                chartr.Invalidate();
+                chartg.Invalidate();
+                chartb.Invalidate();
+            }
+            catch
+            {
+                label_error_2.Text = "failed to generate historammes";
+            }
+
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                label_color_or_gs.Text = "grays";
+                int[] red = new int[256];
+                int[] green = new int[256];
+                int[] blue = new int[256];
+                for (int x = 0; x < pictureBox_after_grayscale.Image.Width; x++)
+                {
+                    for (int y = 0; y < pictureBox_after_grayscale.Image.Height; y++)
+                    {
+                        Color pixel = ((Bitmap)pictureBox_after_grayscale.Image).GetPixel(x, y);
+                        red[pixel.R]++;
+                        green[pixel.G]++;
+                        blue[pixel.B]++;
+                    }
+                }
+                Chart chartr = new Chart();
+                Chart chartg = new Chart();
+                Chart chartb = new Chart();
+                chartr.Series.Add("red");
+                chartg.Series.Add("green");
+                chartb.Series.Add("blue");
+                chartr.Series["red"].Points.Clear();
+                chartg.Series["green"].Points.Clear();
+                chartb.Series["blue"].Points.Clear();
+                chartr.Series["red"].ChartType = SeriesChartType.Line;
+                chartg.Series["green"].ChartType = SeriesChartType.Line;
+                chartb.Series["blue"].ChartType = SeriesChartType.Line;
+                for (int i = 0; i < 256; i++)
+                {
+                    chartr.Series["red"].Points.AddXY(i, red[i]);
+                    chartg.Series["green"].Points.AddXY(i, green[i]);
+                    chartb.Series["blue"].Points.AddXY(i, blue[i]);
+                }
+                //chart.BackColor = Color.Black;
+                //chart.ForeColor = Color.White;
+                //chart.chart.ChartAreas.Add(new ChartArea());
+
+                chartr.ChartAreas.Add(new ChartArea());
+                chartr.ChartAreas[0].AxisX.Title = "Intensity";
+                chartr.ChartAreas[0].AxisY.Title = "Frequency";
+                chartg.ChartAreas.Add(new ChartArea());
+                chartg.ChartAreas[0].AxisX.Title = "Intensity";
+                chartg.ChartAreas[0].AxisY.Title = "Frequency";
+                chartb.ChartAreas.Add(new ChartArea());
+                chartb.ChartAreas[0].AxisX.Title = "Intensity";
+                chartb.ChartAreas[0].AxisY.Title = "Frequency";
+                chartr.Scale(new SizeF(2, 0.5f));
+                chartg.Scale(new SizeF(2, 0.5f));
+                chartb.Scale(new SizeF(2, 0.5f));
+                chartr.Series[0].Color = Color.Red;
+                chartg.Series[0].Color = Color.Green;
+                chartb.Series[0].Color = Color.Blue;
+
+                float maxFrequency = Math.Max(Math.Max(red.Max(), green.Max()), blue.Max());
+
+                chartr.ChartAreas[0].AxisY.Minimum = 0;
+                chartr.ChartAreas[0].AxisY.Maximum = maxFrequency;
+
+                chartg.ChartAreas[0].AxisY.Minimum = 0;
+                chartg.ChartAreas[0].AxisY.Maximum = maxFrequency;
+
+                chartb.ChartAreas[0].AxisY.Minimum = 0;
+                chartb.ChartAreas[0].AxisY.Maximum = maxFrequency;
+
+                // Create a bitmap to draw the chart to
+                Bitmap bitmapr = new Bitmap(chartr.Width, chartr.Height);
+                Bitmap bitmapg = new Bitmap(chartg.Width, chartg.Height);
+                Bitmap bitmapb = new Bitmap(chartb.Width, chartb.Height);
+
+                // Draw the chart to the bitmap
+                chartr.DrawToBitmap(bitmapr, new Rectangle(0, 0, chartr.Width, chartr.Height));
+                chartg.DrawToBitmap(bitmapg, new Rectangle(0, 0, chartg.Width, chartg.Height));
+                chartb.DrawToBitmap(bitmapb, new Rectangle(0, 0, chartb.Width, chartb.Height));
+
+                // Set the image of the PictureBox to the drawn bitmap
+                pictureBox_chart_r.Image = bitmapr;
+                pictureBox_chart_g.Image = bitmapg;
+                pictureBox_chart_b.Image = bitmapb;
+
+
+
+                chartr.Invalidate();
+                chartg.Invalidate();
+                chartb.Invalidate();
+            }
+            catch
+            {
+                label_error_2.Text = "failed to generate historammes";
+            }
+
+        }
+
+        private void button_save_2_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                saveFileDialog1.FileName = Path.GetFileNameWithoutExtension(openFileDialog1.FileName)
+                    + "_" + comboBox_select_dll.Text + "_"
+                    + numericUpDown_no_of_threads.Value + "_threads_histo_"
+                    + label_color_or_gs.Text
+                    + ".jpg";
+                saveFileDialog1.ShowDialog();
+                if (pictureBox_chart_r.Image != null && pictureBox_chart_g.Image != null && pictureBox_chart_b.Image != null)
+                {
+                    int width = pictureBox_chart_r.Image.Width;
+                    int height = pictureBox_chart_r.Image.Height;
+                    int totalHeight = height * 3;
+                    using (Bitmap finalBitmap = new Bitmap(width, totalHeight))
+                    {
+                        using (Graphics g = Graphics.FromImage(finalBitmap))
+                        {
+                            g.Clear(Color.White);
+                            g.DrawImage(pictureBox_chart_r.Image, 0, 0);
+                            g.DrawImage(pictureBox_chart_g.Image, 0, height);
+                            g.DrawImage(pictureBox_chart_b.Image, 0, height * 2);
+                            finalBitmap.Save(saveFileDialog1.FileName, ImageFormat.Jpeg);
+                        }
+                    }
+                }
+                else
+                {
+                    label_error_2.Text = "no image to save";
+                }
+            }
+            catch
+            {
+                label_error_2.Text = "something went wrong";
+            }
+        }
     }
 }

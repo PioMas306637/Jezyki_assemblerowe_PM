@@ -10,8 +10,8 @@ int grayPixels(int wB, int wG, int wR, int wS,
     for (int i = startingIndex; i < startingIndex + (arrayS * increment); i = i + increment)
     {
         int multipliedB = table[i] * wB;
-        int multipliedG = table[i+1] * wG;
-        int multipliedR = table[i+2] * wR;
+        int multipliedG = table[i+1] * wR;
+        int multipliedR = table[i+2] * wG;
         int sum = multipliedB + multipliedG + multipliedR;
         int newVal = sum / wS;
         table[i] = newVal;
