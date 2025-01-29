@@ -50,6 +50,8 @@
             openFileDialog1 = new OpenFileDialog();
             pictureBox_after_grayscale = new PictureBox();
             label_no_of_cores = new Label();
+            button_save = new Button();
+            saveFileDialog1 = new SaveFileDialog();
             ((System.ComponentModel.ISupportInitialize)numericUpDown_no_of_threads).BeginInit();
             ((System.ComponentModel.ISupportInitialize)numericUpDown_red).BeginInit();
             ((System.ComponentModel.ISupportInitialize)numericUpDown_green).BeginInit();
@@ -61,7 +63,7 @@
             // label_grayscale
             // 
             label_grayscale.AutoSize = true;
-            label_grayscale.Location = new Point(12, 9);
+            label_grayscale.Location = new Point(12, 56);
             label_grayscale.Name = "label_grayscale";
             label_grayscale.Size = new Size(72, 20);
             label_grayscale.TabIndex = 0;
@@ -69,7 +71,7 @@
             // 
             // button_pick_picture
             // 
-            button_pick_picture.Location = new Point(12, 32);
+            button_pick_picture.Location = new Point(12, 79);
             button_pick_picture.Name = "button_pick_picture";
             button_pick_picture.Size = new Size(220, 29);
             button_pick_picture.TabIndex = 1;
@@ -80,15 +82,15 @@
             // comboBox_select_dll
             // 
             comboBox_select_dll.FormattingEnabled = true;
-            comboBox_select_dll.Items.AddRange(new object[] { "cpp", "ass", "test" });
-            comboBox_select_dll.Location = new Point(118, 69);
+            comboBox_select_dll.Items.AddRange(new object[] { "cpp", "ass" });
+            comboBox_select_dll.Location = new Point(118, 116);
             comboBox_select_dll.Name = "comboBox_select_dll";
             comboBox_select_dll.Size = new Size(114, 28);
             comboBox_select_dll.TabIndex = 3;
             // 
             // numericUpDown_no_of_threads
             // 
-            numericUpDown_no_of_threads.Location = new Point(165, 103);
+            numericUpDown_no_of_threads.Location = new Point(165, 150);
             numericUpDown_no_of_threads.Maximum = new decimal(new int[] { 64, 0, 0, 0 });
             numericUpDown_no_of_threads.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
             numericUpDown_no_of_threads.Name = "numericUpDown_no_of_threads";
@@ -99,7 +101,7 @@
             // label_no_of_threads
             // 
             label_no_of_threads.AutoSize = true;
-            label_no_of_threads.Location = new Point(12, 108);
+            label_no_of_threads.Location = new Point(12, 155);
             label_no_of_threads.Name = "label_no_of_threads";
             label_no_of_threads.Size = new Size(100, 20);
             label_no_of_threads.TabIndex = 5;
@@ -108,7 +110,7 @@
             // label_detected_cores
             // 
             label_detected_cores.AutoSize = true;
-            label_detected_cores.Location = new Point(12, 142);
+            label_detected_cores.Location = new Point(12, 189);
             label_detected_cores.Name = "label_detected_cores";
             label_detected_cores.Size = new Size(167, 20);
             label_detected_cores.TabIndex = 6;
@@ -117,7 +119,7 @@
             // label_gen_histo
             // 
             label_gen_histo.AutoSize = true;
-            label_gen_histo.Location = new Point(12, 171);
+            label_gen_histo.Location = new Point(12, 218);
             label_gen_histo.Name = "label_gen_histo";
             label_gen_histo.Size = new Size(145, 20);
             label_gen_histo.TabIndex = 7;
@@ -126,7 +128,7 @@
             // checkBox_gen_hist
             // 
             checkBox_gen_hist.AutoSize = true;
-            checkBox_gen_hist.Location = new Point(214, 174);
+            checkBox_gen_hist.Location = new Point(214, 221);
             checkBox_gen_hist.Name = "checkBox_gen_hist";
             checkBox_gen_hist.Size = new Size(18, 17);
             checkBox_gen_hist.TabIndex = 8;
@@ -135,7 +137,7 @@
             // label_color_weights
             // 
             label_color_weights.AutoSize = true;
-            label_color_weights.Location = new Point(12, 212);
+            label_color_weights.Location = new Point(12, 259);
             label_color_weights.Name = "label_color_weights";
             label_color_weights.Size = new Size(121, 20);
             label_color_weights.TabIndex = 9;
@@ -145,7 +147,7 @@
             // 
             numericUpDown_red.DecimalPlaces = 4;
             numericUpDown_red.Increment = new decimal(new int[] { 1, 0, 0, 262144 });
-            numericUpDown_red.Location = new Point(155, 241);
+            numericUpDown_red.Location = new Point(155, 288);
             numericUpDown_red.Maximum = new decimal(new int[] { 1, 0, 0, 0 });
             numericUpDown_red.Name = "numericUpDown_red";
             numericUpDown_red.RightToLeft = RightToLeft.No;
@@ -157,7 +159,7 @@
             // 
             numericUpDown_green.DecimalPlaces = 4;
             numericUpDown_green.Increment = new decimal(new int[] { 1, 0, 0, 262144 });
-            numericUpDown_green.Location = new Point(155, 280);
+            numericUpDown_green.Location = new Point(155, 327);
             numericUpDown_green.Maximum = new decimal(new int[] { 1, 0, 0, 0 });
             numericUpDown_green.Name = "numericUpDown_green";
             numericUpDown_green.Size = new Size(77, 27);
@@ -168,7 +170,7 @@
             // 
             numericUpDown_blue.DecimalPlaces = 4;
             numericUpDown_blue.Increment = new decimal(new int[] { 1, 0, 0, 262144 });
-            numericUpDown_blue.Location = new Point(155, 319);
+            numericUpDown_blue.Location = new Point(155, 366);
             numericUpDown_blue.Maximum = new decimal(new int[] { 1, 0, 0, 0 });
             numericUpDown_blue.Name = "numericUpDown_blue";
             numericUpDown_blue.Size = new Size(77, 27);
@@ -178,7 +180,7 @@
             // label_red
             // 
             label_red.AutoSize = true;
-            label_red.Location = new Point(12, 243);
+            label_red.Location = new Point(12, 290);
             label_red.Name = "label_red";
             label_red.Size = new Size(31, 20);
             label_red.TabIndex = 13;
@@ -187,7 +189,7 @@
             // label_green
             // 
             label_green.AutoSize = true;
-            label_green.Location = new Point(12, 280);
+            label_green.Location = new Point(12, 327);
             label_green.Name = "label_green";
             label_green.Size = new Size(47, 20);
             label_green.TabIndex = 14;
@@ -196,7 +198,7 @@
             // label_blue
             // 
             label_blue.AutoSize = true;
-            label_blue.Location = new Point(12, 321);
+            label_blue.Location = new Point(12, 368);
             label_blue.Name = "label_blue";
             label_blue.Size = new Size(38, 20);
             label_blue.TabIndex = 15;
@@ -204,7 +206,7 @@
             // 
             // button_run
             // 
-            button_run.Location = new Point(18, 371);
+            button_run.Location = new Point(18, 418);
             button_run.Name = "button_run";
             button_run.Size = new Size(214, 29);
             button_run.TabIndex = 16;
@@ -215,7 +217,7 @@
             // label_pick_dll
             // 
             label_pick_dll.AutoSize = true;
-            label_pick_dll.Location = new Point(12, 69);
+            label_pick_dll.Location = new Point(12, 116);
             label_pick_dll.Name = "label_pick_dll";
             label_pick_dll.Size = new Size(57, 20);
             label_pick_dll.TabIndex = 17;
@@ -223,7 +225,7 @@
             // 
             // pictureBox_before_grayscale
             // 
-            pictureBox_before_grayscale.Location = new Point(306, 32);
+            pictureBox_before_grayscale.Location = new Point(306, 79);
             pictureBox_before_grayscale.Name = "pictureBox_before_grayscale";
             pictureBox_before_grayscale.Size = new Size(449, 164);
             pictureBox_before_grayscale.SizeMode = PictureBoxSizeMode.Zoom;
@@ -233,7 +235,7 @@
             // label_error
             // 
             label_error.AutoSize = true;
-            label_error.Location = new Point(18, 421);
+            label_error.Location = new Point(18, 518);
             label_error.Name = "label_error";
             label_error.Size = new Size(17, 20);
             label_error.TabIndex = 19;
@@ -245,9 +247,9 @@
             // 
             // pictureBox_after_grayscale
             // 
-            pictureBox_after_grayscale.Location = new Point(306, 236);
+            pictureBox_after_grayscale.Location = new Point(306, 283);
             pictureBox_after_grayscale.Name = "pictureBox_after_grayscale";
-            pictureBox_after_grayscale.Size = new Size(449, 378);
+            pictureBox_after_grayscale.Size = new Size(449, 318);
             pictureBox_after_grayscale.SizeMode = PictureBoxSizeMode.Zoom;
             pictureBox_after_grayscale.TabIndex = 20;
             pictureBox_after_grayscale.TabStop = false;
@@ -255,17 +257,28 @@
             // label_no_of_cores
             // 
             label_no_of_cores.AutoSize = true;
-            label_no_of_cores.Location = new Point(214, 142);
+            label_no_of_cores.Location = new Point(214, 189);
             label_no_of_cores.Name = "label_no_of_cores";
             label_no_of_cores.Size = new Size(16, 20);
             label_no_of_cores.TabIndex = 21;
             label_no_of_cores.Text = "?";
             // 
+            // button_save
+            // 
+            button_save.Location = new Point(18, 463);
+            button_save.Name = "button_save";
+            button_save.Size = new Size(214, 29);
+            button_save.TabIndex = 22;
+            button_save.Text = "save";
+            button_save.UseVisualStyleBackColor = true;
+            button_save.Click += button_save_Click;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(800, 643);
+            ClientSize = new Size(800, 686);
+            Controls.Add(button_save);
             Controls.Add(label_no_of_cores);
             Controls.Add(pictureBox_after_grayscale);
             Controls.Add(label_error);
@@ -324,5 +337,7 @@
         private OpenFileDialog openFileDialog1;
         private PictureBox pictureBox_after_grayscale;
         private Label label_no_of_cores;
+        private Button button_save;
+        private SaveFileDialog saveFileDialog1;
     }
 }

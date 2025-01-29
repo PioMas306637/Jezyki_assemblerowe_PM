@@ -25,7 +25,6 @@ namespace szkielet
         };
         private class GrayCoordinator
         {
-            private List<VarsForThread> nonCommonVars = new List<VarsForThread>();
             private List<Thread> threadList = new List<Thread>();
             int threads = 0; //number of current thread
 
@@ -89,21 +88,6 @@ namespace szkielet
                 int curArrayPixelCount = (curTop - curBot) * pixelColumnCount;
                 commonArrayByteCount = curArrayPixelCount * bytesForOnePixel;
             }
-            public void prepNonCommonVars()
-            {
-                int curTop;
-                int curBot;
-                int arrayPixelCount;
-                //int arrayByteCount;
-                for (int i = 0; i < selectedNoOfThreads; i++)
-                {
-                    curTop = CalculateTopRange(pixelRowCount, selectedNoOfThreads, i);
-                    curBot = CalculateBottomRange(pixelRowCount, selectedNoOfThreads, i);
-                    arrayPixelCount = (curTop - curBot) * pixelColumnCount;
-                    //arrayByteCount = arrayPixelCount * bytesForOnePixel;
-                    nonCommonVars.Add(new VarsForThread(curTop, curBot, arrayPixelCount));
-                }
-            }
             public void prepArray()
             {
                 MemoryStream stream = new MemoryStream();
@@ -115,9 +99,6 @@ namespace szkielet
             public void RunAssemblerMultiThreadWithXMM()
             {
                 //zamiast import to load
-                [DllImport(@"C:\Users\Pioter\source\repos\Jezyki_assemblerowe_PM\projekt\szkielet\x64\Debug\dll_assembler.dll")]
-                unsafe static extern int GrayPixelsVector(int wB, int wG, int wR, int wS,
-                int arrayS, int increment, int startingIndex, byte[] pointer);
                 for (int i = 0; i < selectedNoOfThreads; i++)
                 {
                     int amountOfPixels = calculateNoOfPixels(pixelRowCount, selectedNoOfThreads, i);
@@ -127,6 +108,9 @@ namespace szkielet
                     //   amountOfPixels, bytesForOnePixel, byteOffset, arrayForAss);
                     Thread t = new Thread(() =>
                     {
+                        [DllImport(@"C:\Users\Pioter\source\repos\Jezyki_assemblerowe_PM\projekt\szkielet\x64\Debug\dll_assembler.dll")]
+                        unsafe static extern int GrayPixelsVector(int wB, int wG, int wR, int wS,
+                        int arrayS, int increment, int startingIndex, byte[] pointer);
                         GrayPixelsVector(wB, wR, wG, wS, amountOfPixels, bytesForOnePixel, byteOffset, arrayForAss);
                     });
                     threadList.Add(t);
@@ -143,19 +127,19 @@ namespace szkielet
             }
             public void RunCppMultiThread()
             {
-                [DllImport(@"C:\Users\Pioter\source\repos\Jezyki_assemblerowe_PM\projekt\szkielet\x64\Debug\dll_assembler.dll")]
-                unsafe static extern int GrayPixelsVector(int wB, int wG, int wR, int wS,
+                [DllImport(@"C:\Users\Pioter\source\repos\Jezyki_assemblerowe_PM\projekt\szkielet\x64\Debug\dll_cpp.dll")]
+                unsafe static extern int grayPixels(int wB, int wG, int wR, int wS,
                 int arrayS, int increment, int startingIndex, byte[] pointer);
                 for (int i = 0; i < selectedNoOfThreads; i++)
                 {
                     int amountOfPixels = calculateNoOfPixels(pixelRowCount, selectedNoOfThreads, i);
                     int byteOffset = CalculateBottomRange(pixelRowCount, selectedNoOfThreads, i)
                         * pixelColumnCount * bytesForOnePixel;
-                    //int ret = GrayPixelsVector(1, 2, 3, 6,
+                    //int ret = grayPixels(wB, wR, wG, wS,
                     //   amountOfPixels, bytesForOnePixel, byteOffset, arrayForAss);
                     Thread t = new Thread(() =>
                     {
-                        GrayPixelsVector(wB, wR, wG, wS, amountOfPixels, bytesForOnePixel, byteOffset, arrayForAss);
+                        grayPixels(wB, wR, wG, wS, amountOfPixels, bytesForOnePixel, byteOffset, arrayForAss);
                     });
                     threadList.Add(t);
                 }
@@ -189,14 +173,6 @@ namespace szkielet
             public Image getImage()
             {
                 return image;
-            }
-            public void setArray(byte[] input)
-            {
-                arrayForAss = input;
-            }
-            public byte[] getArray()
-            {
-                return arrayForAss;
             }
         };
         private bool pictureIsLoaded = false;
@@ -256,30 +232,30 @@ namespace szkielet
 
                 koordynator.prepCommonVars(bytesForOnePixel, selectedNoOfThreads,
                     pixelRowCount, pixelColumnCount, wB, wG, wR);
-                koordynator.prepNonCommonVars();
                 if (runCpp)
                 {
-                    var watch = System.Diagnostics.Stopwatch.StartNew();
                     koordynator.setImage(pictureBox_before_grayscale.Image);
                     koordynator.prepArray();
+                    var watch = System.Diagnostics.Stopwatch.StartNew();
                     koordynator.RunCppMultiThread();
-                    koordynator.prepFinalImage();
-                    pictureBox_after_grayscale.Image = koordynator.getImage();
                     watch.Stop();
                     var czasMili = watch.ElapsedMilliseconds;
-                    label_error.Text = "zamiana zajê³a " + czasMili.ToString() + " ms";
+                    koordynator.prepFinalImage();
+                    pictureBox_after_grayscale.Image = koordynator.getImage();
+                    label_error.Text = "conversion took " + czasMili.ToString() + " ms";
                 }
                 if (runAss)
                 {
-                    var watch = System.Diagnostics.Stopwatch.StartNew();
                     koordynator.setImage(pictureBox_before_grayscale.Image);
                     koordynator.prepArray();
+                    var watch = System.Diagnostics.Stopwatch.StartNew();
                     koordynator.RunAssemblerMultiThreadWithXMM();
-                    koordynator.prepFinalImage();
-                    pictureBox_after_grayscale.Image = koordynator.getImage();
                     watch.Stop();
                     var czasMili = watch.ElapsedMilliseconds;
-                    label_error.Text = "zamiana zajê³a " + czasMili.ToString() + " ms";
+                    koordynator.prepFinalImage();
+                    pictureBox_after_grayscale.Image = koordynator.getImage();
+                    label_error.Text = "conversion took " + czasMili.ToString() + " ms";
+
                 }
             }
 
@@ -298,6 +274,33 @@ namespace szkielet
             catch (System.ArgumentException ex)
             {
                 label_error.Text = "select a VALID picture to run!";
+            }
+        }
+
+        private void button_save_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                saveFileDialog1.FileName = Path.GetFileNameWithoutExtension(openFileDialog1.FileName)
+                    + "_" + comboBox_select_dll.Text + "_"
+                    + numericUpDown_no_of_threads.Value + "_threads"
+                    + ".jpg";
+                saveFileDialog1.ShowDialog();
+                if (pictureBox_after_grayscale.Image != null)
+                {
+                    using (Bitmap bmp = new Bitmap(pictureBox_after_grayscale.Image))
+                    {
+                        bmp.Save(saveFileDialog1.FileName, ImageFormat.Jpeg);
+                    }
+                }
+                else
+                {
+                    label_error.Text = "no image to save";
+                }
+            }
+            catch
+            {
+                label_error.Text = "something went wrong";
             }
         }
 
