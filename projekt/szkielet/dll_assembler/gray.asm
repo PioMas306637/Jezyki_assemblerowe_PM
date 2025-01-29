@@ -1,7 +1,15 @@
 .code
 
-
-; this procedure takes 8 arguments
+; ====== GrayPixelsVector ======
+;
+; This procedure takes an array of bytes, representing color values of pixels.
+;	For each three bytes (RGB), it calculates their weighted average and overwrites
+;	all three with that average value. This effectively converts the image represented
+;	by the array to grayscale. The procedure does not perform extensive validation
+;	of input arguments, so it should be used with caution to avoid exceptions such as
+;	"Attempted to read or write protected memory".
+;
+; This procedure takes 8 arguments
 ; 1 - the weight of blue, automaticaly moved to rcx
 ; 2 - the weight of red, automaticaly moved to rdx
 ; 3 - the weight of green, automaticaly moved to r8
@@ -19,9 +27,9 @@
 ; 8 - a pointer to the array of bytes to overwrite,
 ;	taken from the stack, and stored in rsi for the duration of the procedure
 ;
-; provided correct execution, this procedure returns a 0 in the RAX register
+; Provided correct execution, this procedure returns a 0 in the RAX register.
 ;
-; this procedure destroys the following registers during its operation:
+; This procedure destroys the contents of the following registers during its operation:
 ;	- RAX
 ;	- RCX
 ;	- RDX
@@ -36,7 +44,7 @@
 ;	- YMM6
 ;	- YMM7
 ;
-; this procedure uses but restores the following registers before it ends:
+; This procedure uses but restores the following registers before it ends:
 ;	- RBX
 ;	- R14
 ;	- RSI

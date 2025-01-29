@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34701.34
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "szkielet", "szkielet\szkielet.csproj", "{05E47439-F005-45C1-8EC4-1658291FE53D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "projekt_grayscale", "szkielet\projekt_grayscale.csproj", "{05E47439-F005-45C1-8EC4-1658291FE53D}"
 	ProjectSection(ProjectDependencies) = postProject
 		{B9CFFFDE-5413-4BD8-8F4C-A35C7DF75D6A} = {B9CFFFDE-5413-4BD8-8F4C-A35C7DF75D6A}
 		{F3A9FDEC-A12D-496E-8DC3-B9E5BEC6F921} = {F3A9FDEC-A12D-496E-8DC3-B9E5BEC6F921}
