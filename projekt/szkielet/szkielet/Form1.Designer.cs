@@ -56,6 +56,7 @@
             comboBox_select_dll = new ComboBox();
             button_pick_picture = new Button();
             tabPage2 = new TabPage();
+            label_color_or_gs = new Label();
             button_save_2 = new Button();
             label3 = new Label();
             label2 = new Label();
@@ -63,7 +64,6 @@
             pictureBox_chart_b = new PictureBox();
             pictureBox_chart_g = new PictureBox();
             pictureBox_chart_r = new PictureBox();
-            label_color_or_gs = new Label();
             tabControl1.SuspendLayout();
             conversion.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox_after_grayscale).BeginInit();
@@ -183,9 +183,9 @@
             // 
             // pictureBox_after_grayscale
             // 
-            pictureBox_after_grayscale.Location = new Point(314, 242);
+            pictureBox_after_grayscale.Location = new Point(314, 325);
             pictureBox_after_grayscale.Name = "pictureBox_after_grayscale";
-            pictureBox_after_grayscale.Size = new Size(449, 318);
+            pictureBox_after_grayscale.Size = new Size(450, 250);
             pictureBox_after_grayscale.SizeMode = PictureBoxSizeMode.Zoom;
             pictureBox_after_grayscale.TabIndex = 41;
             pictureBox_after_grayscale.TabStop = false;
@@ -194,7 +194,7 @@
             // 
             pictureBox_before_grayscale.Location = new Point(314, 38);
             pictureBox_before_grayscale.Name = "pictureBox_before_grayscale";
-            pictureBox_before_grayscale.Size = new Size(449, 164);
+            pictureBox_before_grayscale.Size = new Size(450, 250);
             pictureBox_before_grayscale.SizeMode = PictureBoxSizeMode.Zoom;
             pictureBox_before_grayscale.TabIndex = 40;
             pictureBox_before_grayscale.TabStop = false;
@@ -354,6 +354,15 @@
             tabPage2.Text = "histogrammes";
             tabPage2.UseVisualStyleBackColor = true;
             // 
+            // label_color_or_gs
+            // 
+            label_color_or_gs.AutoSize = true;
+            label_color_or_gs.Location = new Point(365, 501);
+            label_color_or_gs.Name = "label_color_or_gs";
+            label_color_or_gs.Size = new Size(104, 20);
+            label_color_or_gs.TabIndex = 7;
+            label_color_or_gs.Text = "color_or_grays";
+            // 
             // button_save_2
             // 
             button_save_2.Location = new Point(93, 501);
@@ -414,15 +423,6 @@
             pictureBox_chart_r.Size = new Size(600, 150);
             pictureBox_chart_r.TabIndex = 0;
             pictureBox_chart_r.TabStop = false;
-            // 
-            // label_color_or_gs
-            // 
-            label_color_or_gs.AutoSize = true;
-            label_color_or_gs.Location = new Point(365, 501);
-            label_color_or_gs.Name = "label_color_or_gs";
-            label_color_or_gs.Size = new Size(104, 20);
-            label_color_or_gs.TabIndex = 7;
-            label_color_or_gs.Text = "color_or_grays";
             // 
             // Form1
             // 

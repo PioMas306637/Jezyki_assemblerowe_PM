@@ -52,22 +52,22 @@
 GrayPixelsVector proc
 
 setup:
-cvtsi2ss xmm1, r9				; sum converted from int to float for easier calculations
-vbroadcastss ymm1, xmm1			; broadcast sum of weights to all 8 cells of ymm1
-cvtsi2ss xmm2, rdx				; convert
-vbroadcastss ymm2, xmm2			; broadcast red weight
-cvtsi2ss xmm3, r8				; convert
-vbroadcastss ymm3, xmm3			; broadcast green weight
-cvtsi2ss xmm4, rcx				; convert
-vbroadcastss ymm4, xmm4			; broadcast blue weight
-push rbx					; save the contents of these registers to restore later on
+cvtsi2ss xmm1, r9					; sum converted from int to float for easier calculations
+vbroadcastss ymm1, xmm1				; broadcast sum of weights to all 8 cells of ymm1
+cvtsi2ss xmm2, rdx					; convert
+vbroadcastss ymm2, xmm2				; broadcast red weight
+cvtsi2ss xmm3, r8					; convert
+vbroadcastss ymm3, xmm3				; broadcast green weight
+cvtsi2ss xmm4, rcx					; convert
+vbroadcastss ymm4, xmm4				; broadcast blue weight
+push rbx							; save the contents of these registers to restore later on
 push r14
 push rsi
-mov rcx, [rsp+64]		; pop the array size
-mov rbx, [rsp+72]		; pop the array pointer increment value
-mov r14, [rsp+80]		; pop the array starting index
-mov rsi, [rsp+88]		; pop the array pointer 
-add rsi, r14			; start turning pixels gray from the index indicated by r14
+mov rcx, [rsp+64]					; pop the array size
+mov rbx, [rsp+72]					; pop the array pointer increment value
+mov r14, [rsp+80]					; pop the array starting index
+mov rsi, [rsp+88]					; pop the array pointer 
+add rsi, r14						; start turning pixels gray from the index indicated by r14
 
 prepare_loop_counter:
 ; if rcx(remaining pixels) >= 4

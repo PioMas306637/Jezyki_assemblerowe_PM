@@ -112,7 +112,7 @@ namespace szkielet
                 #if DEBUG
                 [DllImport(@"..\..\..\..\..\x64\Debug\dll_assembler.dll")]
                 #else
-                [DllImport(@"..\..\..\..\..\x64\Release\dll_assembler.dll")] 
+                [DllImport(@"dll_assembler.dll")] 
                 #endif
                 unsafe static extern int GrayPixelsVector(int wB, int wG, int wR, int wS,
                 int arrayS, int increment, int startingIndex, byte[] pointer);
@@ -143,7 +143,7 @@ namespace szkielet
 #if DEBUG
                 [DllImport(@"..\..\..\..\..\x64\Debug\dll_cpp.dll")]
 #else
-                [DllImport(@"..\..\..\..\..\x64\Release\dll_cpp.dll")]
+                [DllImport(@"dll_cpp.dll")]
 #endif
                 unsafe static extern int grayPixels(int wB, int wG, int wR, int wS,
                 int arrayS, int increment, int startingIndex, byte[] pointer);
